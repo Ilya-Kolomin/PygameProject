@@ -1,6 +1,7 @@
 import os
 import sys
 import pygame
+import random
 
 pygame.init()
 
@@ -97,7 +98,21 @@ player_sheets = {"idle": (load_image("idle_left.png", -1), 1, 1),
 }
 wall_sheets = {
     "0000":(load_image("grass_0000.png", -1), 3, 1),
-	"1011":(load_image("grass_1011.png", -1), 3, 1)
+    "0001":(load_image("grass_0001.png", -1), 3, 1),
+    "0010": (load_image("grass_0010.png", -1), 3, 1),
+    "0011": (load_image("grass_0011.png", -1), 3, 1),
+    "0100": (load_image("grass_0100.png", -1), 3, 1),
+    "0101": (load_image("grass_0101.png", -1), 3, 1),
+    "0110": (load_image("grass_0110.png", -1), 3, 1),
+    "0111": (load_image("grass_0111.png", -1), 3, 1),
+    "1000": (load_image("grass_1000.png", -1), 3, 1),
+    "1001": (load_image("grass_1001.png", -1), 3, 1),
+    "1010": (load_image("grass_1010.png", -1), 3, 1),
+    "1011": (load_image("grass_1011.png", -1), 3, 1),
+    "1100": (load_image("grass_1100.png", -1), 3, 1),
+    "1101": (load_image("grass_1101.png", -1), 3, 1),
+    "1110": (load_image("grass_1110.png", -1), 3, 1),
+    "1111": (load_image("grass_1111.png", -1), 3, 1)
 }
 
 class AnimatedSprite(pygame.sprite.Sprite):
@@ -138,13 +153,17 @@ class Player(AnimatedSprite):
 class Wall(AnimatedSprite):
     def __init__(self, sheet, columns, rows, x, y):
         super().__init__(sheet, columns, rows, x, y, group=walls_group)
-        self.period = 8
+        self.period = random.randrange(8, 14)
 
-player = Player(*player_sheets["idle"], 50, 50)
-Wall(*wall_sheets["1011"], 0, 0)
+player = Player(*player_sheets["idle"], 30, 30)
+Wall(*wall_sheets["1111"], 0, 0)
 Wall(*wall_sheets["1011"], 30, 0)
-Wall(*wall_sheets["1011"], 60, 0)
-
+Wall(*wall_sheets["1111"], 60, 0)
+Wall(*wall_sheets["1101"], 0, 30)
+Wall(*wall_sheets["1111"], 0, 60)
+Wall(*wall_sheets["1110"], 30, 60)
+Wall(*wall_sheets["1111"], 60, 60)
+Wall(*wall_sheets["0111"], 60, 30)
 running = True
 
 while running:
