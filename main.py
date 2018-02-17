@@ -91,12 +91,13 @@ def startScreen():
         clock.tick(FPS)
 
 
-player_sheets = {"idle": (load_image("idle.png", -1), 1, 1),
+player_sheets = {"idle": (load_image("idle_left.png", -1), 1, 1),
     "left": (load_image("rabbit_walking_left.png", -1), 7, 1),
     "right": (load_image("rabbit_walking_right.png", -1), 7, 1)
 }
 wall_sheets = {
-    "0000":(load_image("grass_0000.png", -1), 3, 1)
+    "0000":(load_image("grass_0000.png", -1), 3, 1),
+	"1011":(load_image("grass_1011.png", -1), 3, 1)
 }
 
 class AnimatedSprite(pygame.sprite.Sprite):
@@ -140,7 +141,9 @@ class Wall(AnimatedSprite):
         self.period = 8
 
 player = Player(*player_sheets["idle"], 50, 50)
-Wall(*wall_sheets["0000"], 15, 15)
+Wall(*wall_sheets["1011"], 0, 0)
+Wall(*wall_sheets["1011"], 30, 0)
+Wall(*wall_sheets["1011"], 60, 0)
 
 running = True
 
