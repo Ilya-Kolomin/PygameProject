@@ -8,7 +8,7 @@ pygame.init()
 pygame.key.set_repeat(200, 70)
 
 FPS = 50
-WIDTH = 400
+WIDTH = 390
 HEIGHT = 300
 STEP = 10
 
@@ -38,23 +38,41 @@ def load_image(name, colorkey=None):
     return image
 
 
-# def load_level(filename):
-#     filename = "data/" + filename
-#     # читаем уровень, убирая символы перевода строки
-#     with open(filename, 'r') as mapFile:
-#         level_map = [line.strip() for line in mapFile]
-#
-#     # и подсчитываем максимальную длину
-#     maxWidth = max(map(len, level_map))
-#
-#     # дополняем каждую строку пустыми клетками ('.')
-#     return list(map(lambda x: x.ljust(maxWidth, '.'), level_map))
+def load_level(filename):
+    filename = "data/" + filename
+    # читаем уровень, убирая символы перевода строки
+    with open(filename, 'r') as mapFile:
+        level_map = [line.strip() for line in mapFile]
+
+    # и подсчитываем максимальную длину
+    maxWidth = max(map(len, level_map))
+
+    # дополняем каждую строку пустыми клетками ('.')
+    return list(map(lambda x: x.ljust(maxWidth, '.'), level_map))
 
 
 def generate_level(level):
     for y in range(len(level)):
         for x in range(len(level[y])):
-            pass
+            if level[y][x] == '#':
+                s = ""
+                if level[y][max(x-1, 0)] == "#":
+                    s+="1"
+                else:
+                    s+="0"
+                if level[min(y+1, len(level) - 1)][x] == "#":
+                    s+="1"
+                else:
+                    s+="0"
+                if level[y][min(x+1, len(level[y]) - 1)] == "#":
+                    s+="1"
+                else:
+                    s+="0"
+                if level[max(y-1, 0)][x] == "#":
+                    s+="1"
+                else:
+                    s+="0"
+                Wall(*wall_sheets[s], x*30, y*30)
         #TO DO
     #return player, x, y
 
@@ -156,14 +174,15 @@ class Wall(AnimatedSprite):
         self.period = random.randrange(8, 14)
 
 player = Player(*player_sheets["idle"], 30, 30)
-Wall(*wall_sheets["1111"], 0, 0)
-Wall(*wall_sheets["1011"], 30, 0)
-Wall(*wall_sheets["1111"], 60, 0)
-Wall(*wall_sheets["1101"], 0, 30)
-Wall(*wall_sheets["1111"], 0, 60)
-Wall(*wall_sheets["1110"], 30, 60)
-Wall(*wall_sheets["1111"], 60, 60)
-Wall(*wall_sheets["0111"], 60, 30)
+generate_level(load_level("levelex.txt"))
+# Wall(*wall_sheets["1111"], 0, 0)
+# Wall(*wall_sheets["1011"], 30, 0)
+# Wall(*wall_sheets["1111"], 60, 0)
+# Wall(*wall_sheets["1101"], 0, 30)
+# Wall(*wall_sheets["1111"], 0, 60)
+# Wall(*wall_sheets["1110"], 30, 60)
+# Wall(*wall_sheets["1111"], 60, 60)
+# Wall(*wall_sheets["0111"], 60, 30)
 running = True
 
 while running:
