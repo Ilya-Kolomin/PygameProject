@@ -112,8 +112,10 @@ def startScreen():
 
 player_sheets = {"idle_left": (load_image("idle_left.png", -1), 1, 1),
     "idle_right": (load_image("idle_right.png", -1), 1, 1),
+    "idle_front": (load_image("rabbit_front.png", -1), 1, 1),
     "left": (load_image("rabbit_walking_left.png", -1), 8, 1),
-    "right": (load_image("rabbit_walking_right.png", -1), 8, 1)
+    "right": (load_image("rabbit_walking_right.png", -1), 8, 1),
+    "down": (load_image("rabbit_down.png", -1), 1, 7)
 }
 wall_sheets = {
     "0000":(load_image("grass_0000.png", -1), 3, 1),
@@ -190,6 +192,15 @@ class Player(AnimatedSprite):
             self.change_stage("idle_right")
         elif self.stage=="left":
             self.change_stage("idle_left")
+    def move_down(self):
+        if self.stage!="down":
+            self.change_stage("down")
+        if self.cur_frame//self.period == 5:
+            self.rect.y += 2
+        elif 2 < self.cur_frame//self.period < 5:
+            self.rect.y += 3
+        if pygame.sprite.spritecollideany(self, walls_group):
+            self.rect.y -= 4
 
 class Wall(AnimatedSprite):
     def __init__(self, sheet, columns, rows, x, y):
@@ -224,13 +235,13 @@ while running:
                 #player.rect.x += 2
                 #if player.stage != "right":
                 #    player.change_stage("right")
-             if event.key == pygame.K_UP:
-                 player.move_left()
+             #if event.key == pygame.K_UP:
+             #    player.move_left()
                  #if player.stage != "idle":
                  #   player.change_stage("idle")
              #    player.rect.y -= STEP
-             #if event.key == pygame.K_DOWN:
-             #    player.rect.y += STEP
+             if event.key == pygame.K_DOWN:
+                 player.move_down()
         else:
             #if player.stage != "idle":
             #    player.change_stage("idle")
