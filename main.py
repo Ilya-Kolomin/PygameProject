@@ -110,9 +110,10 @@ def startScreen():
         clock.tick(FPS)
 
 
-player_sheets = {"idle": (load_image("idle_left.png", -1), 1, 1),
-    "left": (load_image("rabbit_walking_left.png", -1), 7, 1),
-    "right": (load_image("rabbit_walking_right.png", -1), 7, 1)
+player_sheets = {"idle_left": (load_image("idle_left.png", -1), 1, 1),
+    "idle_right": (load_image("idle_right.png", -1), 1, 1),
+    "left": (load_image("rabbit_walking_left.png", -1), 8, 1),
+    "right": (load_image("rabbit_walking_right.png", -1), 8, 1)
 }
 wall_sheets = {
     "0000":(load_image("grass_0000.png", -1), 3, 1),
@@ -135,7 +136,7 @@ wall_sheets = {
 
 class AnimatedSprite(pygame.sprite.Sprite):
     def __init__(self, sheet, columns, rows, x, y, group = None):
-        self.period = 2
+        self.period = 3
         super().__init__(group, all_sprites)
         self.frames = []
         self.rect = pygame.Rect(0, 0, sheet.get_width() // columns, sheet.get_height() // rows)
@@ -160,20 +161,42 @@ class AnimatedSprite(pygame.sprite.Sprite):
 class Player(AnimatedSprite):
     def __init__(self, sheet, columns, rows, x, y):
         super().__init__(sheet, columns, rows, x, y, group=player_group)
-        self.stage = "idle"
+        self.stage = "idle_right"
 
     def change_stage(self, stage):
         self.stage = stage
         self.cut_sheet(*player_sheets[stage])
         self.cur_frame = 0
-
+    def move_left(self):
+        if self.stage!="left":
+            self.change_stage("left")
+        if self.cur_frame//self.period == 4:
+            self.rect.x -= 2
+        elif 4 < self.cur_frame//self.period < 7:
+            self.rect.x -= 4
+        if pygame.sprite.spritecollideany(self, walls_group):
+            self.rect.x += 4
+    def move_right(self):
+        if self.stage!="right":
+            self.change_stage("right")
+        if self.cur_frame//self.period == 4:
+            self.rect.x += 2
+        elif 4 < self.cur_frame//self.period < 7:
+            self.rect.x += 4
+        if pygame.sprite.spritecollideany(self, walls_group):
+            self.rect.x -= 4
+    def move_idle(self):
+        if self.stage=="right":
+            self.change_stage("idle_right")
+        elif self.stage=="left":
+            self.change_stage("idle_left")
 
 class Wall(AnimatedSprite):
     def __init__(self, sheet, columns, rows, x, y):
         super().__init__(sheet, columns, rows, x, y, group=walls_group)
         self.period = random.randrange(8, 14)
 
-player = Player(*player_sheets["idle"], 30, 30)
+player = Player(*player_sheets["idle_right"], 30, 30)
 generate_level(load_level("levelex.txt"))
 # Wall(*wall_sheets["1111"], 0, 0)
 # Wall(*wall_sheets["1011"], 30, 0)
@@ -192,22 +215,26 @@ while running:
             running = False
         elif event.type == pygame.KEYDOWN:
              if event.key == pygame.K_LEFT:
-             #    player.rect.x -= STEP
-                if player.stage != "left":
-                    player.change_stage("left")
+                 player.move_left()
+                #player.rect.x -= 2
+                #if player.stage != "left":
+                #    player.change_stage("left")
              if event.key == pygame.K_RIGHT:
-             #    player.rect.x += STEP
-                if player.stage != "right":
-                    player.change_stage("right")
+                 player.move_right()
+                #player.rect.x += 2
+                #if player.stage != "right":
+                #    player.change_stage("right")
              if event.key == pygame.K_UP:
-                 if player.stage != "idle":
-                    player.change_stage("idle")
+                 player.move_left()
+                 #if player.stage != "idle":
+                 #   player.change_stage("idle")
              #    player.rect.y -= STEP
              #if event.key == pygame.K_DOWN:
              #    player.rect.y += STEP
         else:
-            if player.stage != "idle":
-                player.change_stage("idle")
+            #if player.stage != "idle":
+            #    player.change_stage("idle")
+            player.move_idle()
 
 
     #camera.update(player)
