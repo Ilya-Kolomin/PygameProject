@@ -110,6 +110,117 @@ def startScreen():
         pygame.display.flip()
         clock.tick(FPS)
 
+class Label:
+    def __init__(self, rect, text):
+        self.rect = pygame.Rect(rect)
+        self.text = text
+        self.bgcolor = pygame.Color("white")
+        self.font_color = pygame.Color("gray")
+        # Рассчитываем размер шрифта в зависимости от высоты
+        self.font = pygame.font.Font("freesansbold.ttf", self.rect.height - 4)
+        self.rendered_text = None
+        self.rendered_rect = None
+
+
+    def render(self, surface):
+        surface.fill(self.bgcolor, self.rect)
+        self.rendered_text = self.font.render(self.text, 1, self.font_color)
+        self.rendered_rect = self.rendered_text.get_rect(x=self.rect.x + 2, centery=self.rect.centery)
+        # выводим текст
+        surface.blit(self.rendered_text, self.rendered_rect)
+
+class GUI:
+    def __init__(self):
+        self.elements = []
+
+    def add_element(self, element):
+        self.elements.append(element)
+
+    def render(self, surface):
+        for element in self.elements:
+            render = getattr(element, "render", None)
+            if callable(render):
+                element.render(surface)
+
+    def update(self):
+        for element in self.elements:
+            update = getattr(element, "update", None)
+            if callable(update):
+                element.update()
+
+    def get_event(self, event):
+        for element in self.elements:
+            get_event = getattr(element, "get_event", None)
+            if callable(get_event):
+                element.get_event(event)
+
+class Button(Label):
+    def __init__(self, rect, text):
+        super().__init__(rect, text)
+        self.bgcolor = pygame.Color("blue")
+        # при создании кнопка не нажата
+        self.pressed = False
+
+    def render(self, surface):
+        surface.fill(self.bgcolor, self.rect)
+        self.rendered_text = self.font.render(self.text, 1, self.font_color)
+        if not self.pressed:
+            color1 = pygame.Color("white")
+            color2 = pygame.Color("black")
+            self.rendered_rect = self.rendered_text.get_rect(x=self.rect.x + 5, centery=self.rect.centery)
+        else:
+            color1 = pygame.Color("black")
+            color2 = pygame.Color("white")
+            self.rendered_rect = self.rendered_text.get_rect(x=self.rect.x + 7, centery=self.rect.centery + 2)
+
+        # рисуем границу
+        pygame.draw.rect(surface, color1, self.rect, 2)
+        pygame.draw.line(surface, color2, (self.rect.right - 1, self.rect.top), (self.rect.right - 1, self.rect.bottom), 2)
+        pygame.draw.line(surface, color2, (self.rect.left, self.rect.bottom - 1),
+                         (self.rect.right, self.rect.bottom - 1), 2)
+        # выводим текст
+        surface.blit(self.rendered_text, self.rendered_rect)
+
+    def get_event(self, event):
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+            self.pressed = self.rect.collidepoint(event.pos)
+        elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
+            self.pressed = False
+
+def pause():
+    gui = GUI()
+    b1 = Button((10, 65, 200, 80), "EXIT")
+    b2 = Button((10, 10, 260, 50), "CONTINUE")
+    gui.add_element(b1)
+    gui.add_element(b2)
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                terminate()
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    return
+            gui.get_event(event);
+        if b1.pressed:
+            while b1.pressed:
+                for event in pygame.event.get():
+                    gui.get_event(event)
+                gui.render(screen)
+                gui.update()
+                pygame.display.flip()
+            terminate()
+        if b2.pressed:
+            while b2.pressed:
+                for event in pygame.event.get():
+                    gui.get_event(event)
+                gui.render(screen)
+                gui.update()
+                pygame.display.flip()
+            return
+        gui.render(screen)
+        gui.update()
+        pygame.display.flip()
+
 floor_sheet = (load_image("grass_floor.png"), 8, 1)
 
 player_sheets = {"idle_left": (load_image("idle_left.png", -1), 1, 1),
@@ -263,6 +374,8 @@ while running:
              #    player.rect.y -= STEP
              if event.key == pygame.K_DOWN:
                  player.move_down()
+             if event.key == pygame.K_ESCAPE:
+                 pause()
         else:
             #if player.stage != "idle":
             #    player.change_stage("idle")
