@@ -7,7 +7,7 @@ pygame.init()
 
 pygame.key.set_repeat(200, 70)
 
-FPS = 50
+FPS = 60
 WIDTH = 390
 HEIGHT = 300
 STEP = 10
@@ -73,6 +73,7 @@ def generate_level(level):
                 else:
                     s+="0"
                 Wall(*wall_sheets[s], x*30, y*30)
+            AnimatedSprite(*floor_sheet, x*30, y*30)
         #TO DO
     #return player, x, y
 
@@ -109,6 +110,7 @@ def startScreen():
         pygame.display.flip()
         clock.tick(FPS)
 
+floor_sheet = (load_image("grass_floor.png"), 8, 1)
 
 player_sheets = {"idle_left": (load_image("idle_left.png", -1), 1, 1),
     "idle_right": (load_image("idle_right.png", -1), 1, 1),
@@ -140,7 +142,11 @@ wall_sheets = {
 class AnimatedSprite(pygame.sprite.Sprite):
     def __init__(self, sheet, columns, rows, x, y, group = None):
         self.period = 3
-        super().__init__(group, all_sprites)
+
+        if group != None:
+            super().__init__(group, all_sprites)
+        else:
+            super().__init__(all_sprites)
         self.frames = []
         self.rect = pygame.Rect(0, 0, sheet.get_width() // columns, sheet.get_height() // rows)
         self.cut_sheet(sheet, columns, rows)
@@ -219,7 +225,7 @@ class Player(AnimatedSprite):
 class Wall(AnimatedSprite):
     def __init__(self, sheet, columns, rows, x, y):
         super().__init__(sheet, columns, rows, x, y, group=walls_group)
-        self.period = random.randrange(8, 14)
+        self.period = random.randrange(14, 20)
 
 player = Player(*player_sheets["idle_right"], 30, 30)
 generate_level(load_level("levelex.txt"))
@@ -269,12 +275,12 @@ while running:
     #    camera.apply(sprite)
 
     screen.fill(pygame.Color(0, 0, 0))
-    #tiles_group.draw(screen)
+    all_sprites.draw(screen)
     player_group.draw(screen)
     walls_group.draw(screen)
-    for i in walls_group:
+    for i in all_sprites:
         i.update()
-    player.update()
+    #player.update()
     pygame.display.flip()
 
     clock.tick(FPS)
